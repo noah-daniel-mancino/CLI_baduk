@@ -4,4 +4,3 @@
 - A board
 - Scoring
 - An artificial opponent
-
