@@ -1,3 +1,6 @@
+'''
+Author: Noah Mancino
+'''
 from typing import Callable
 from termcolor import colored
 
@@ -19,13 +22,16 @@ class Board:
         '''
         try:
             assert 0 < dim <= 26
-            assert type(dim) is int
+            assert isinstance(dim, int)
         except AssertionError:
             print('Please choose a dimension between 0 and 26')
             return
 
         # Empty = 0, White = 1, Black = 2
         self.board = [[0 for x in range(dim)] for x in range(dim)]
+        self.board[3][3] = 1
+        self.board[2][2] = 2
+        self.board[15][2] = 1
         # We want to keep the last board in memory for undos and kos. 
         self.last_board = self.board
         self.dim = dim
@@ -33,12 +39,16 @@ class Board:
         self.white_score = 0
 
     def move(self, cords: tuple, color: int) -> bool:
-        if self.valid_move(cords, color):
-            self.board[cords[0]][cords[1]] = color
-            return True
-        return False
+        '''
+        Make a move, brother
+        '''
+        # if self.valid_move(cords, color):
+        #     self.board[cords[0]][cords[1]] = color
+        #     self._group_search(cords, self.is_dead)
+        #     return True
+        # return False
 
-    def valid_move(cords: tuple, color: int) -> bool:
+    def valid_move(self, cords: tuple, color: int) -> bool:
         '''
         Input:
         Cords - The x and y coordinates where the stones are to be placed.
@@ -51,24 +61,25 @@ class Board:
         if self.board[cords[0]][cords[1]] != 0:
             return False
         # Next, check if the move leaves any liberties in the group. To do
-        # this, we will temporarily place the stone, but the board should be
-        # returned to it's previous state on function exit. 
+        # this, we will need to modify a copy of the board.
+        board_copy = copy.deepcopy(self.board)
         self.board[cords[0]][cords[1]] = color
         # Next, we check for ko. This board only enforces the simplest ko rule,
         # namely, that consecutive terms cannot repeat board states. 
         if self.board == self.last_board:
             return False
 
-    def _group_search(cords: tuple, group_func: Callable, stop_cond=lambda x: False) -> list:
+    def _group_search(self, cords: tuple, group_func: Callable, 
+                      stop_cond=lambda x: False) -> list:
         '''
         Description:
-        Counting and checking for liberties both call for performing some
-        computation on every member of a group. This function will search
+        Methods involving checking for liberties call for performing some
+        computation on every member of a group or territory. This function will search
         through the group using flood fill, and apply group_func to each
         stone along the way. If group_func returns a value fulfilling the stop
         condition set by stop_cond, the function will exit early. This is 
         useful in cases where you are looking to see if any one stone meets 
-        some requirement, e.g a group is alive if any member has a liberty. 
+        some requirement, e.g a group is not dead if any member has a liberty. 
 
         Input:
         Cords - The x and y coordinates of an arbitrary element of the group.
@@ -79,11 +90,16 @@ class Board:
         Returns:
         A list containing the output from each call to group_func.
         '''
+        return 
 
-    def count_territory(cords: tuple) -> int:
-        pass
+    def count_territory(self, cords: tuple) -> int:
+        '''
+        Returns:
+        Territory
+        '''
+        return 
     
-    def is_dead(cords: tuple) -> bool:
+    def is_dead(self, cords: tuple) -> bool:
         '''
         Description:
         Checks if a group is alive or not. Returns true if so and false
@@ -95,9 +111,9 @@ class Board:
         Returns:
         True if group is alive, false if the group is dead. 
         '''
-        pass
+        return
 
-    def is_living(cords: tuple) -> bool:
+    def is_living(self, cords: tuple) -> bool:
         '''
         Description:
         Checks if a group has two seprate pieces of eyespace. This function is
@@ -117,7 +133,7 @@ class Board:
         group bordering potential eye space has two eyes, flagging groups that
         have already been checked. 
         '''
-        pass
+        return
     
     def undo(self) -> None:
         '''
@@ -136,7 +152,7 @@ class Board:
         # We only need the first self.dim lables, and each character comes
         # with a space so the index needs to be doubled
         bottom_labels = (' A B C D E F G H I J K L M N ' 
-                    'O P Q R S T U V W X Y Z')[:self.dim * 2]
+                         'O P Q R S T U V W X Y Z')[:self.dim * 2]
         # The board, represented as a string.
         board_str = ''
         for index, row in enumerate(self.board):
@@ -149,8 +165,12 @@ class Board:
         return board_str
 
     def in_bounds(self, cords: tuple) -> bool:
+        '''
+        Returns:
+        True if coordinates are in the board, and False otherwise.
+        '''
         return 0 <= cords[0] < self.dim and 0 <= cords[1] < self.dim
 
         
-board = Board(19)
-print(str(board))
+BOARD = Board(19)
+print(str(BOARD))
